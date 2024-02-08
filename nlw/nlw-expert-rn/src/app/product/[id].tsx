@@ -8,6 +8,7 @@ import {
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useState } from "react";
 import { Feather } from "@expo/vector-icons";
+import { Redirect } from "expo-router";
 
 import { PRODUCTS } from "@/utils/data/products";
 import { formatCurrency } from "@/utils/functions/format-currency";
@@ -22,14 +23,22 @@ export default function Product() {
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
 
-  const product = PRODUCTS.filter((item) => item.id === id)[0];
+  const product = PRODUCTS.find((item) => item.id === id);
 
   function showCartToast(product: string) {
-    ToastAndroid.showWithGravity(
-      `${product} adicionado ao carrinho`,
-      ToastAndroid.SHORT,
-      ToastAndroid.CENTER
-    );
+    if (quantity > 1) {
+      ToastAndroid.showWithGravity(
+        `${quantity} ${product} foram adicionados ao carrinho`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER
+      );
+    } else {
+      ToastAndroid.showWithGravity(
+        `${product} foi adicionado ao carrinho`,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER
+      );
+    }
   }
 
   function addQuantity() {
@@ -43,45 +52,43 @@ export default function Product() {
   }
 
   function handleAddtoCart() {
-    for (let i = 0; i < quantity; i++) {
-      cartStore.add(product);
+    if (!product) {
+      return <Redirect href={"/"} />;
+    } else {
+      for (let i = 0; i < quantity; i++) {
+        cartStore.add(product);
+      }
+      navigation.goBack();
+      setQuantity(1);
+      showCartToast(product.title);
     }
-
-    navigation.goBack();
-    setQuantity(1);
-    showCartToast(product.title);
   }
 
   return (
     <View className="flex-1">
       <Image
-        source={product.cover}
+        source={product!.cover}
         className="w-full h-52 "
         resizeMode="cover"
       ></Image>
-
-      <View className="mt-4 items-center">
-        <Text className="font-heading text-slate-400 text-3xl ">
-          {product.title}
+      <View className="p-5 mt-1 flex-1">
+        <Text className="font-heading text-white text-2xl ">
+          {product!.title}
         </Text>
-      </View>
-
-      <View className="p-5 mt-8 flex-1">
         <Text className="text-lime-400 text-2xl font-heading">
-          {formatCurrency(product.price)}
+          {formatCurrency(product!.price)}
         </Text>
 
         <Text className="text-slate-400 font-body text-base leading-6 mb-6">
-          {product.description}
+          {product!.description}
         </Text>
-        {product.ingredients.map((ingredient) => (
+        {product!.ingredients.map((ingredient) => (
           <Text key={ingredient} className="text-slate-400 font-body leading-6">
             {"\u2022"}
             {ingredient}
           </Text>
         ))}
       </View>
-
       <View className="p-5 pb-8 gap-5">
         <View className="flex-row gap-2">
           <Button onPress={handleAddtoCart}>

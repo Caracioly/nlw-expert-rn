@@ -3,7 +3,7 @@ import { Product } from "@/components/product";
 import { CategoryButton } from "@/components/category-button";
 import { useCartStore } from "@/stores/cart-store";
 
-import { CATEGORIES, MENU } from "@/utils/data/products";
+import { CATEGORIES, MENU, ProductProps } from "@/utils/data/products";
 
 import { useState, useRef } from "react";
 import {
@@ -13,7 +13,6 @@ import {
   Text,
 } from "react-native";
 import { Link } from "expo-router";
-import { Button } from "@/components/button";
 
 export default function Home() {
   const cartStore = useCartStore();
@@ -35,7 +34,7 @@ export default function Home() {
     }
   }
 
-  const sectionListRef = useRef<SectionList>(null);
+  const sectionListRef = useRef<SectionList<ProductProps>>(null);
 
   const cartQuantityitems = cartStore.products.reduce(
     (total, product) => total + product.quantity,
@@ -79,7 +78,6 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
-      
     </View>
   );
 }
